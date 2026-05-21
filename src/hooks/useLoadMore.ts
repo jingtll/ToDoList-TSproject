@@ -1,5 +1,6 @@
-import { Ref } from 'vue'
-export default function useLoadMore(element: Ref<null | HTMLElement>, fn: function) {
+import type { Ref } from 'vue'
+import { throttle } from '@/utils/throttle'
+export default function useLoadMore(element: Ref<null | HTMLElement>, fn: () => void) {
   function loadMore() {
     //获取可视区域的高度
     const containerHeight = element.value?.clientHeight || 0
@@ -12,5 +13,5 @@ export default function useLoadMore(element: Ref<null | HTMLElement>, fn: functi
       fn()
     }
   }
-  element.value?.addEventListener('scroll', loadMore)
+  element.value?.addEventListener('scroll', throttle(loadMore, 1000))
 }

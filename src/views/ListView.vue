@@ -83,7 +83,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
 </script>
 
 <template>
-  <div class="note-box" ref="refListBox">
+  <div class="note-box">
     <van-search
       placeholder="搜索便签"
       input-align="center"
@@ -91,7 +91,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
       @search="handleSearch"
       @clear="handleClear"
     />
-    <div class="list-box">
+    <div class="list-box" ref="refListBox">
       <div class="list-left">
         <div v-for="item in state.leftList" :key="item['_id']" class="list-item">
           <div class="item-content">
@@ -140,6 +140,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
 <style lang="scss" scoped>
 .note-box {
   width: 100%;
+  height: 100vh;
   overflow: hidden;
   flex: 1;
   padding: 0 0.1rem;
