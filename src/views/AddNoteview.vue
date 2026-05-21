@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { useListStore } from '@/stores/notelist'
 import { showSuccessToast } from 'vant'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+const route = useRoute()
 const router = useRouter()
 const listStore = useListStore()
 const state = reactive({
@@ -10,17 +11,45 @@ const state = reactive({
     content: '',
     dates: '',
   },
+  oldContent: '',
+  id: '',
 })
 const date = new Date()
 const handleAddNotes = () => {
-  state.note.dates = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
-  listStore.addNoteList(state.note).then((res) => {
-    if (res) {
-      showSuccessToast('添加成功')
-      router.push('/')
+  if (state.id) {
+    if (state.oldContent != state.note.content) {
+      const payLoad = { id: state.id, note: state.note }
+      listStore.updateNoteList(payLoad).then((res) => {
+        if (res) {
+          showSuccessToast('更新成功')
+          router.push('/')
+        }
+      })
+    }
+  } else {
+    state.note.dates = `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`
+    listStore.addNoteList(state.note).then((res) => {
+      if (res) {
+        showSuccessToast('添加成功')
+        router.push('/')
+      }
+    })
+  }
+}
+const initNote = () => {
+  const id = route.query.id
+  if (!id) return
+  listStore.list.forEach((item) => {
+    if (item._id == id) {
+      state.note.content = item.content
+      state.oldContent = item.content
+      state.id = item._id
     }
   })
 }
+onMounted(() => {
+  initNote()
+})
 </script>
 
 <template>

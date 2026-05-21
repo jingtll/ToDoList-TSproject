@@ -8,3 +8,6 @@ export function addNotes<T>(note: T) {
 export function getNoteListByContent<T>(content: string) {
   return service.get<T>(`/note/content/${content}`) as Promise<T>
 }
+export function UpdateNote<T>(id: string, note: T) {
+  return service.put<T>(`/note/${id}`, note)
+}

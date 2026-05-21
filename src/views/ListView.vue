@@ -5,6 +5,8 @@ import type { Note, NoteList, NoteListState } from '@/types'
 import { useListStore } from '@/stores/notelist'
 import { debounce } from '@/utils/debounce'
 import useLoadMore from '@/hooks/useLoadMore'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 const listStore = useListStore()
 const notes = ref([] as NoteList)
 const items = ref([] as HTMLElement[])
@@ -72,6 +74,17 @@ const loadMore = () => {
     .getNotesList(stateV.page, stateV.size)
     .then((res) => ((items.value = []), (notes.value = res)))
 }
+//定义添加便签跳转
+const handleAdd = () => {
+  router.push({ name: 'addNote' })
+}
+const handleClickItem = (e: any) => {
+  console.log(e.target.id)
+  if (e.target.className === 'click-model') {
+    const id = e.target.id
+    router.push({ path: '/addNote', query: { id } })
+  }
+}
 onMounted(() => {
   initList()
   useLoadMore(refListBox, loadMore)
@@ -92,7 +105,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
       @clear="handleClear"
     />
     <div class="list-box" ref="refListBox">
-      <div class="list-left">
+      <div class="list-left" @click="handleClickItem">
         <div v-for="item in state.leftList" :key="item['_id']" class="list-item">
           <div class="item-content">
             <p class="item-text">{{ item.content }}</p>
@@ -100,6 +113,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
           <div class="item-bottom">
             <p>{{ item.dates }}</p>
           </div>
+          <div class="click-model" :id="item['_id']"></div>
         </div>
       </div>
       <div class="list-right">
@@ -134,6 +148,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
         </div>
       </div>
     </div>
+    <van-button round icon="plus" class="button" type="primary" @click="handleAdd"></van-button>
   </div>
 </template>
 
@@ -237,6 +252,15 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
         user-select: none;
       }
     }
+  }
+  .button {
+    position: fixed;
+    bottom: 0.2rem;
+    right: 0.2rem;
+  }
+  .van-button {
+    width: 0.44rem;
+    height: 0.44rem;
   }
 }
 </style>
