@@ -5,7 +5,9 @@ import type { Note, NoteList, NoteListState } from '@/types'
 import { useListStore } from '@/stores/notelist'
 import { debounce } from '@/utils/debounce'
 import useLoadMore from '@/hooks/useLoadMore'
+import useLongTouch from '@/hooks/useLongTouch'
 import { useRouter } from 'vue-router'
+import { showSuccessToast } from 'vant'
 const router = useRouter()
 const listStore = useListStore()
 const notes = ref([] as NoteList)
@@ -49,6 +51,7 @@ const stateV = reactive({
   searchValue: '',
   page: 1,
   size: 13,
+  delId: '',
 })
 //定义搜索方法
 const handleSearch = () => {
@@ -78,12 +81,33 @@ const loadMore = () => {
 const handleAdd = () => {
   router.push({ name: 'addNote' })
 }
+//点击跳转便签详情页
 const handleClickItem = (e: any) => {
   console.log(e.target.id)
   if (e.target.className === 'click-model') {
     const id = e.target.id
     router.push({ path: '/addNote', query: { id } })
   }
+}
+//处理长按删除的功能
+const show = ref<boolean>(false)
+const leftDom = ref<null | HTMLElement>(null)
+const rightDom = ref<null | HTMLElement>(null)
+useLongTouch([leftDom, rightDom], (id: string) => {
+  //拿到id值以后，调用删除的接口，进行删除的操作，删除dom的显示
+  console.log(id, '长按了')
+  stateV.delId = id
+  show.value = true
+})
+//定义删除便签函数
+const handleDelete = () => {
+  listStore.deleteNoteList(stateV.delId).then((res) => {
+    if (res) {
+      showSuccessToast('删除成功')
+      show.value = false
+      handleClear()
+    }
+  })
 }
 onMounted(() => {
   initList()
@@ -105,7 +129,7 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
       @clear="handleClear"
     />
     <div class="list-box" ref="refListBox">
-      <div class="list-left" @click="handleClickItem">
+      <div class="list-left" @click="handleClickItem" ref="leftDom">
         <div v-for="item in state.leftList" :key="item['_id']" class="list-item">
           <div class="item-content">
             <p class="item-text">{{ item.content }}</p>
@@ -116,13 +140,14 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
           <div class="click-model" :id="item['_id']"></div>
         </div>
       </div>
-      <div class="list-right">
+      <div class="list-right" @click="handleClickItem" ref="rightDom">
         <div v-for="item in state.rightList" :key="item['_id']" class="list-item">
           <div class="item-content">
             <p class="item-text">{{ item.content }}</p>
           </div>
           <div class="item-bottom">
             <p>{{ item.dates }}</p>
+            <div class="click-model" :id="item['_id']"></div>
           </div>
         </div>
       </div>
@@ -148,10 +173,17 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
         </div>
       </div>
     </div>
+    <van-popup v-model:show="show" position="bottom" :style="{ height: '10%' }"
+      ><div
+        @click="handleDelete"
+        class="h-full w-full flex items-center justify-center text-center text-blue-500 delete-text"
+      >
+        删除
+      </div></van-popup
+    >
     <van-button round icon="plus" class="button" type="primary" @click="handleAdd"></van-button>
   </div>
 </template>
-
 <style lang="scss" scoped>
 .note-box {
   width: 100%;
@@ -252,6 +284,15 @@ watch(() => stateV.searchValue, debounce(handleSearch, 1000))
         user-select: none;
       }
     }
+  }
+  .van-popup {
+    :deep(.van-popup__content) {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .delete-text {
+    font-size: 0.23rem;
   }
   .button {
     position: fixed;

@@ -55,6 +55,10 @@ const initNote = () => {
     })
   }
 }
+//返回首页
+// const handleBack = () => {
+//   router.push('/')
+// }
 onMounted(() => {
   initNote()
 })
@@ -62,7 +66,7 @@ onMounted(() => {
 
 <template>
   <div class="add-note-box w-full overflow-x-hidden overflow-y-auto bg-amber-50 flex-1">
-    <van-nav-bar left-arrow
+    <van-nav-bar left-arrow @click="router.push('/')"
       ><template #right><van-icon name="success" size="18" @click="handleAddNotes()" /></template
     ></van-nav-bar>
     <van-field

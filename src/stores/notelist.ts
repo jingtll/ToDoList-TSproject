@@ -1,7 +1,14 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Note, NoteList } from '@/types/note'
-import { getNotes, addNotes, getNoteListByContent, UpdateNote, getNoteById } from '@/api/node'
+import {
+  getNotes,
+  addNotes,
+  getNoteListByContent,
+  UpdateNote,
+  getNoteById,
+  deleteNote,
+} from '@/api/node'
 
 export const useListStore = defineStore('list', () => {
   const list = ref<Note[]>([])
@@ -29,5 +36,16 @@ export const useListStore = defineStore('list', () => {
   const getNoteByIdList = async (id: string) => {
     return await getNoteById<Note>(id)
   }
-  return { list, getNotesList, addNoteList, getNotesListSearch, updateNoteList, getNoteByIdList }
+  const deleteNoteList = async (id: string) => {
+    return await deleteNote<Note>(id)
+  }
+  return {
+    list,
+    getNotesList,
+    addNoteList,
+    getNotesListSearch,
+    updateNoteList,
+    getNoteByIdList,
+    deleteNoteList,
+  }
 })

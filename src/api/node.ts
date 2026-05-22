@@ -19,3 +19,7 @@ export function UpdateNote<T>(id: string, note: T) {
 export function getNoteById<T>(id: string) {
   return service.get<T>(`/note/id/${id}`) as Promise<T>
 }
+//删除接口
+export function deleteNote<T>(id: string) {
+  return service.delete<T>(`/note/${id}`) as Promise<T>
+}
