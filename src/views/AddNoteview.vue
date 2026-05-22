@@ -46,6 +46,14 @@ const initNote = () => {
       state.id = item._id
     }
   })
+  if (listStore.list.length == 0) {
+    //应该拿到id值去请求接口拿到数据（页面刷新时，listStore.list为空）
+    listStore.getNoteByIdList(id as string).then((res) => {
+      state.note.content = res.content
+      state.oldContent = res.content
+      state.id = res._id as string
+    })
+  }
 }
 onMounted(() => {
   initNote()

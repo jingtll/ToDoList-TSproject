@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Skill(study-notes)"
+      "Skill(study-notes)",
+      "Skill(study-notes-continuation)"
     ]
   }
 }
